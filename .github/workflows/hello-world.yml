@@ -1,35 +1,35 @@
-name: Hello World Action
+name: Generate and Zip Content
 
 on:
   push:
     branches:
-      - main  # Trigger when pushing to the main branch
-  workflow_dispatch:  # Allows manual triggering from the GitHub Actions UI
+      - main  # Trigger on push to the main branch
+  workflow_dispatch:  # Manually trigger from GitHub Actions UI
 
 jobs:
-  hello_world_job:
-    runs-on: ubuntu-latest  # Runs the job on an Ubuntu machine
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2  # Check out your repository's code
+  generate_content_job:
+    runs-on: ubuntu-latest  # You can change to macos-latest or windows-latest
 
-      - name: Set up Python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Check out your code repository
+
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'  # Specify the Python version you want to use
+          python-version: '3.8'  # Set the Python version
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pyzipper  # Install the required dependencies
+          pip install google-genai requests pyzipper  # Install the required libraries
 
-      - name: Run Hello World script
+      - name: Run the Python script
         run: |
-          python hello-world.py  # Run the Python script to send API request, zip the file, and protect it
+          python hello-world.py  # Run the Python script to generate content and create a zip file
 
-      - name: Upload zip file to GitHub
-        uses: actions/upload-artifact@v4  # Use the latest v4 version for uploading artifacts
+      - name: Upload ZIP file as an artifact
+        uses: actions/upload-artifact@v4  # Upload the generated zip file
         with:
-          name: api-response
-          path: api_response.zip  # Upload the zip file created by the script
+          name: api-response-zip
+          path: api_response.zip  # The zip file created in the script
