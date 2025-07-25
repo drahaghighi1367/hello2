@@ -1,34 +1,51 @@
 import requests
 import pyzipper
+from google import genai
+from google.genai import types
 
-# Print a Hello World message
-print("Hello, World!")
+# Hardcode the Gemini API Key
+GEMINI_API_KEY = "your_hardcoded_api_key_here"
 
-# Send a GET request to a public test API (JSONPlaceholder)
-url = "https://jsonplaceholder.typicode.com/posts/1"  # A test endpoint
-response = requests.get(url)
+# Generate content using Google GenAI API
+def generate():
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Check if the request was successful
-if response.status_code == 200:
-    print("API Request Successful!")
+    model = "gemini-2.5-flash-lite"
+    contents = [
+        types.Content(role="user", parts=[types.Part.from_text(text="hi")]),
+        types.Content(role="model", parts=[types.Part.from_text(text="Hello! How can I help you today?")]),
+        types.Content(role="user", parts=[types.Part.from_text(text="INSERT_INPUT_HERE")]),
+    ]
+    tools = [types.Tool(googleSearch=types.GoogleSearch())]
+    generate_content_config = types.GenerateContentConfig(
+        thinking_config=types.ThinkingConfig(thinking_budget=0),
+        tools=tools,
+    )
+
+    response_text = ""
+    for chunk in client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    ):
+        response_text += chunk.text
+
     # Save the response as a text file
     file_name = "api_response.txt"
     with open(file_name, 'w') as f:
-        f.write(str(response.json()))  # Save the response JSON as text
+        f.write(response_text)  # Save the response text
 
     print(f"Response saved to {file_name}")
 
-    # Now let's create a zip file with password protection
+    # Now create a password-protected zip file
     zip_file_name = "api_response.zip"
     password = b"your_password"  # Password for the zip file (must be bytes)
     
     with pyzipper.AESZipFile(zip_file_name, mode="w", encryption=pyzipper.WZ_AES) as zipf:
-        # Set the password for encryption
-        zipf.setpassword(password)
-        
-        # Add the .txt file to the zip
-        zipf.write(file_name)
+        zipf.setpassword(password)  # Set the password for encryption
+        zipf.write(file_name)  # Add the .txt file to the zip
 
     print(f"Zipped file created: {zip_file_name}")
-else:
-    print(f"Failed to get data from API. Status code: {response.status_code}")
+
+if __name__ == "__main__":
+    generate()
