@@ -1,36 +1,43 @@
-import requests
-import pyzipper
+# To run this code you need to install the following dependencies:
+# pip install google-genai
 
-# Hardcoded API Key (only for testing)
-GEMINI_API_KEY = "your_hardcoded_api_key_here"
+import base64
+import os
+from google import genai
+from google.genai import types
 
-# Mock function to simulate GenAI API response
+
 def generate():
-    # In reality, you would call the GenAI API, but let's mock it
-    # response = requests.get(f"https://genai.googleapis.com/api/{GEMINI_API_KEY}")
-    # For now, let's use a placeholder response instead.
-    
-    response_text = """
-    User: Hello
-    Model: Hi there! How can I assist you today?
-    """
-    
-    # Save the response as a text file
-    file_name = "api_response.txt"
-    with open(file_name, 'w') as f:
-        f.write(response_text)  # Save the mock response
+    client = genai.Client(
+        api_key="AIzaSyC-5F2pFV06h2Q3tQ7wsQeP-_KssV9eqYM"
+    )
 
-    print(f"Response saved to {file_name}")
+    model = "gemini-2.5-flash-lite"
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text="""INSERT_INPUT_HERE"""),
+            ],
+        ),
+    ]
+    tools = [
+        types.Tool(googleSearch=types.GoogleSearch(
+        )),
+    ]
+    generate_content_config = types.GenerateContentConfig(
+        thinking_config = types.ThinkingConfig(
+            thinking_budget=0,
+        ),
+        tools=tools,
+    )
 
-    # Now create a password-protected zip file
-    zip_file_name = "api_response.zip"
-    password = b"your_password"  # Password for the zip file (must be bytes)
-    
-    with pyzipper.AESZipFile(zip_file_name, mode="w", encryption=pyzipper.WZ_AES) as zipf:
-        zipf.setpassword(password)  # Set the password for encryption
-        zipf.write(file_name)  # Add the .txt file to the zip
-
-    print(f"Zipped file created: {zip_file_name}")
+    for chunk in client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    ):
+        print(chunk.text, end="")
 
 if __name__ == "__main__":
     generate()
