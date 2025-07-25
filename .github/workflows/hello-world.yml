@@ -29,7 +29,7 @@ jobs:
           python hello-world.py  # Run the Python script to send API request, zip the file, and protect it
 
       - name: Upload zip file to GitHub
-        uses: actions/upload-artifact@v2  # Use v2 instead of v3
+        uses: actions/upload-artifact@v4  # Use the latest v4 version for uploading artifacts
         with:
           name: api-response
           path: api_response.zip  # Upload the zip file created by the script
