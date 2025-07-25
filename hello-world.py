@@ -1,39 +1,24 @@
 import requests
 import pyzipper
-from google import genai
-from google.genai import types
 
-# Hardcode the Gemini API Key
+# Hardcoded API Key (only for testing)
 GEMINI_API_KEY = "your_hardcoded_api_key_here"
 
-# Generate content using Google GenAI API
+# Mock function to simulate GenAI API response
 def generate():
-    client = genai.Client(api_key=GEMINI_API_KEY)
-
-    model = "gemini-2.5-flash-lite"
-    contents = [
-        types.Content(role="user", parts=[types.Part.from_text(text="hi")]),
-        types.Content(role="model", parts=[types.Part.from_text(text="Hello! How can I help you today?")]),
-        types.Content(role="user", parts=[types.Part.from_text(text="INSERT_INPUT_HERE")]),
-    ]
-    tools = [types.Tool(googleSearch=types.GoogleSearch())]
-    generate_content_config = types.GenerateContentConfig(
-        thinking_config=types.ThinkingConfig(thinking_budget=0),
-        tools=tools,
-    )
-
-    response_text = ""
-    for chunk in client.models.generate_content_stream(
-        model=model,
-        contents=contents,
-        config=generate_content_config,
-    ):
-        response_text += chunk.text
-
+    # In reality, you would call the GenAI API, but let's mock it
+    # response = requests.get(f"https://genai.googleapis.com/api/{GEMINI_API_KEY}")
+    # For now, let's use a placeholder response instead.
+    
+    response_text = """
+    User: Hello
+    Model: Hi there! How can I assist you today?
+    """
+    
     # Save the response as a text file
     file_name = "api_response.txt"
     with open(file_name, 'w') as f:
-        f.write(response_text)  # Save the response text
+        f.write(response_text)  # Save the mock response
 
     print(f"Response saved to {file_name}")
 
