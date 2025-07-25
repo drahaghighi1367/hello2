@@ -1,36 +1,34 @@
 import requests
-import json
 import pyzipper
-import os
 
-# API URL for a test endpoint
+# Print a Hello World message
+print("Hello, World!")
+
+# Send a GET request to a public test API (JSONPlaceholder)
 url = "https://jsonplaceholder.typicode.com/posts/1"  # A test endpoint
 response = requests.get(url)
 
 # Check if the request was successful
 if response.status_code == 200:
     print("API Request Successful!")
-    
-    # Get the response JSON data
-    data = response.json()
-
-    # Save the response to a .txt file
+    # Save the response as a text file
     file_name = "api_response.txt"
-    with open(file_name, 'w') as file:
-        file.write(json.dumps(data, indent=4))  # Save the response as pretty JSON
+    with open(file_name, 'w') as f:
+        f.write(str(response.json()))  # Save the response JSON as text
+
     print(f"Response saved to {file_name}")
 
-    # Zip the .txt file and password protect it
+    # Now let's create a zip file with password protection
     zip_file_name = "api_response.zip"
-    zip_password = "your_secret_password"  # Set your password here
+    password = b"your_password"  # Password for the zip file (must be bytes)
+    
+    with pyzipper.AESZipFile(zip_file_name, mode="w", encryption=pyzipper.WZ_AES) as zipf:
+        # Set the password for encryption
+        zipf.setpassword(password)
+        
+        # Add the .txt file to the zip
+        zipf.write(file_name)
 
-    with pyzipper.AESZipFile(zip_file_name, 'w', compression=pyzipper.ZIP_DEFLATED) as zipf:
-        zipf.setpassword(zip_password.encode())  # Set the password for encryption
-        zipf.write(file_name)  # Add the .txt file to the zip
-    print(f"File {file_name} zipped and password protected as {zip_file_name}")
-
-    # Clean up: remove the original .txt file (optional)
-    os.remove(file_name)
-    print(f"Original {file_name} deleted after zipping.")
+    print(f"Zipped file created: {zip_file_name}")
 else:
     print(f"Failed to get data from API. Status code: {response.status_code}")
